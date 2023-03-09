@@ -113,7 +113,7 @@ func main() {
 	}
 
 	// выводим адрес с наибольшим изменением баланса
-	fmt.Printf("Address: %v\nBalance Change: %v", maxAddress, maxBalanceChange.Int64())
+	fmt.Printf("Address: %v", maxAddress)
 }
 
 func getBlock(i int) (block, error) {
