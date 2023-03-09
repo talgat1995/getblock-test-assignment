@@ -55,8 +55,10 @@ func main() {
 	// создаем мапу для хранения баланса каждого адреса
 	balances := make(map[string]*big.Int)
 	wg := &sync.WaitGroup{}
-	mu := sync.Mutex{}
-	rateLimiter := time.Tick(time.Millisecond * 50)
+	mu := &sync.Mutex{}
+
+	//пришлось сделать тикер, чтобы не ловить 429
+	rateLimiter := time.Tick(time.Millisecond * 25)
 
 	// запрос eth_getBlockByNumber для последних 100 блоков
 	for i := latestBlockNumberInt; i > latestBlockNumberInt-100; i-- {
@@ -70,7 +72,7 @@ func main() {
 			}
 
 			for _, tx := range curBlock.Transactions {
-				if tx.Value == "0x0" {
+				if tx.Value == zeroValueHex {
 					continue
 				}
 				// изменяем баланс отправителя
@@ -81,7 +83,6 @@ func main() {
 
 				numVal := convertHexToBig(tx.Value)
 				balances[tx.From].Sub(balances[tx.From], numVal)
-				fmt.Println(numVal.Int64())
 
 				mu.Unlock()
 
@@ -91,6 +92,7 @@ func main() {
 					balances[tx.To] = big.NewInt(0)
 				}
 				balances[tx.To].Add(balances[tx.To], convertHexToBig(tx.Value))
+
 				mu.Unlock()
 			}
 			wg.Done()
@@ -142,7 +144,6 @@ func getBlock(i int) (block, error) {
 
 	var result blockByNumberResp
 
-	fmt.Println(res.StatusCode)
 	if res.StatusCode != http.StatusOK {
 		return block{}, errors.New("request failed")
 	}
@@ -176,11 +177,8 @@ func getLatestBlockNumber() (string, error) {
 
 // конвертация hex в decimal
 func convertHexToBig(hex string) *big.Int {
-	dec := new(big.Int)
-	dec, ok := dec.SetString(hex[2:], 16)
-	if !ok {
-		fmt.Println(ok)
-	}
+	num := new(big.Int)
+	num, _ = num.SetString(hex[2:], 16)
 
-	return dec
+	return num
 }
