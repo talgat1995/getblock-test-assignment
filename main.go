@@ -106,7 +106,7 @@ func main() {
 	var maxBalanceChange *big.Int
 
 	for address, balance := range balances {
-		if maxBalanceChange == nil || balance.Cmp(maxBalanceChange) != 0 {
+		if maxBalanceChange == nil || balance.Abs(balance).Cmp(maxBalanceChange.Abs(maxBalanceChange)) == 1 {
 			maxAddress = address
 			maxBalanceChange = balance
 		}
