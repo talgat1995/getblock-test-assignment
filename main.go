@@ -13,7 +13,7 @@ import (
 
 const (
 	url          = "https://eth.getblock.io/mainnet/"
-	apiKey       = "effce8eb-20b7-457f-8efc-fcbfb8814f11"
+	apiKey       = "" //API-KEY
 	zeroValueHex = "0x0"
 )
 
